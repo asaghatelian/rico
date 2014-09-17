@@ -311,9 +311,7 @@ $(function() {
       var age = this.$("#signup-age").val();
       var education = this.$("#signup-education").val();
       
-      alert(sex);
-      return;
-      Parse.User.signUp(username, password, { ACL: new Parse.ACL() }, {
+      Parse.User.signUp(id, sex, age, education, { ACL: new Parse.ACL() }, {
         success: function(user) {
           new ManageTodosView();
           self.undelegateEvents();
@@ -348,11 +346,7 @@ $(function() {
     },
 
     render: function() {
-      if (Parse.User.current()) {
-        new ManageTodosView();
-      } else {
-        new LogInView();
-      }
+      new LogInView();
     }
   });
 
