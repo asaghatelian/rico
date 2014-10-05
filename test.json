@@ -1,0 +1,26 @@
+{
+    "key": "b04fee8a1c75e17bd27e1ba8b9072551",
+    "source": "website",
+    "style": "mla7",
+    "website": {
+        "title": "14 Best Inventions Using Biomimicry in 2011"
+    },
+    "pubtype": {
+        "main": "pubonline"
+    },
+    "pubonline": {
+        "title": "Title of entire website",
+        "inst": "Organization that owns web site",
+        "day": "6",
+        "month": "january",
+        "year": "2001",
+        "dayaccessed": "9",
+        "monthaccessed": "may",
+        "yearaccessed": "2012"
+    }
+    "contributors": [{
+        //contributor 1
+    }, {
+        //contributor 2
+    }]
+}

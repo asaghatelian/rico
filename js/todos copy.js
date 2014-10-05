@@ -1,11 +1,38 @@
+// An example Parse.js Backbone application based on the todo app by
+// [Jérôme Gravel-Niquet](http://jgn.me/). This demo uses Parse to persist
+// the todo items and provide user authentication and sessions.
 
 $(function() {
 
   Parse.$ = jQuery;
 
   // Initialize Parse with your Parse application javascript keys
-  Parse.initialize("MzcDFN8ustfDQhDyohncIvXcvTDRuu1J95y46BCM",
-                   "wqU7vFwjZzo35M25hhypr2wxPwH38Ikg1AJr4OhP");
+  Parse.initialize("gM37gmsFsj7qzRvW9IHwUjzJC10hgLqrEFLgnj0y",
+                   "78Xc0YWXGZOsvYhZyJZQSggeLBmCYqqgHHtbHzoR");
+
+  // Todo Model
+  // ----------
+
+  // Our basic Todo model has `content`, `order`, and `done` attributes.
+  var Todo = Parse.Object.extend("Todo", {
+    // Default attributes for the todo.
+    defaults: {
+      content: "empty todo...",
+      done: false
+    },
+
+    // Ensure that each todo created has `content`.
+    initialize: function() {
+      if (!this.get("content")) {
+        this.set({"content": this.defaults.content});
+      }
+    },
+
+    // Toggle the `done` state of this todo item.
+    toggle: function() {
+      this.save({done: !this.get("done")});
+    }
+  });
 
   // This is the transient application state, not persisted on Parse
   var AppState = Parse.Object.extend("AppState", {
@@ -14,7 +41,10 @@ $(function() {
     }
   });
 
-  /*var TodoList = Parse.Collection.extend({
+  // Todo Collection
+  // ---------------
+
+  var TodoList = Parse.Collection.extend({
 
     // Reference to this collection's model.
     model: Todo,
@@ -42,8 +72,6 @@ $(function() {
     }
 
   });
-
-*/
 
   // Todo Item View
   // --------------
@@ -266,24 +294,46 @@ $(function() {
 
   var LogInView = Parse.View.extend({
     events: {
+      "submit form.login-form": "logIn",
       "submit form.signup-form": "signUp"
     },
 
     el: ".content",
     
     initialize: function() {
-      _.bindAll(this, "signUp");
+      _.bindAll(this, "logIn", "signUp");
       this.render();
+    },
+
+    logIn: function(e) {
+      var self = this;
+      var username = this.$("#login-username").val();
+      var password = this.$("#login-password").val();
+      
+      Parse.User.logIn(username, password, {
+        success: function(user) {
+          new ManageTodosView();
+          self.undelegateEvents();
+          delete self;
+        },
+
+        error: function(user, error) {
+          self.$(".login-form .error").html("Invalid username or password. Please try again.").show();
+          self.$(".login-form button").removeAttr("disabled");
+        }
+      });
+
+      this.$(".login-form button").attr("disabled", "disabled");
+
+      return false;
     },
 
     signUp: function(e) {
       var self = this;
-      var id = this.$("#signup-id").val();
-      var sex = this.$("#signup-sex").val();
-      var age = this.$("#signup-age").val();
-      var education = this.$("#signup-education").val();
+      var username = this.$("#signup-username").val();
+      var password = this.$("#signup-password").val();
       
-      Parse.User.signUp(id, sex, age, education, { ACL: new Parse.ACL() }, {
+      Parse.User.signUp(username, password, { ACL: new Parse.ACL() }, {
         success: function(user) {
           new ManageTodosView();
           self.undelegateEvents();
@@ -318,7 +368,11 @@ $(function() {
     },
 
     render: function() {
-      new LogInView();
+      if (Parse.User.current()) {
+        new ManageTodosView();
+      } else {
+        new LogInView();
+      }
     }
   });
 
